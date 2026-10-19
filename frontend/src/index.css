@@ -1,0 +1,22 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, 'Hiragino Sans', 'Yu Gothic UI', sans-serif;
+  color: #3a2e28;
+  background: #fbf7f2;
+}
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 48px 16px;
+  text-align: center;
+}
+
+.status {
+  color: #7a6a60;
+  font-size: 0.9rem;
+}
