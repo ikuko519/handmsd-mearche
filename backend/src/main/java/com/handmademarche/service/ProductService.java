@@ -6,6 +6,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.handmademarche.dto.ProductCreateRequest;
 import com.handmademarche.entity.Product;
 import com.handmademarche.repository.ProductRepository;
 
@@ -25,5 +26,12 @@ public class ProductService {
 	/** 商品一覧をID順で取得する */
 	public List<Product> findAll() {
 		return productRepository.findAll(Sort.by("id"));
+	}
+
+	/** 商品を新規登録する */
+	@Transactional
+	public Product create(ProductCreateRequest request) {
+		Product product = new Product(request.name(), request.price(), request.description());
+		return productRepository.save(product);
 	}
 }
