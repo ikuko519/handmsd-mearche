@@ -9,14 +9,99 @@ body {
   background: #fbf7f2;
 }
 
+/* ヘッダー */
+.site-header {
+  background: #fff;
+  border-bottom: 3px solid #ea6b66;
+}
+
+.site-title {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 16px;
+  color: #ea6b66;
+  font-size: 1.5rem;
+}
+
 .container {
   max-width: 960px;
   margin: 0 auto;
-  padding: 48px 16px;
-  text-align: center;
+  padding: 32px 16px 48px;
 }
 
-.status {
+.page-title {
+  margin: 0 0 20px;
+  font-size: 1.25rem;
+}
+
+/* 読み込み中・エラー・0件のメッセージ */
+.message {
+  padding: 32px 16px;
+  text-align: center;
   color: #7a6a60;
+}
+
+.message-error {
+  color: #b42318;
+  background: #fef3f2;
+  border: 1px solid #fecdca;
+  border-radius: 8px;
+}
+
+/* 商品一覧（画面設計どおり2列のカード。スマホでは1列） */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (max-width: 600px) {
+  .product-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.product-card {
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid #eadfd5;
+  border-radius: 12px;
+}
+
+.product-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 4 / 3;
+  color: #a8968a;
+  background: #f1e9e1;
   font-size: 0.9rem;
+}
+
+.product-body {
+  padding: 16px;
+}
+
+.product-name {
+  margin: 0 0 4px;
+  font-size: 1.05rem;
+  overflow-wrap: anywhere;
+}
+
+.product-price {
+  margin: 0 0 8px;
+  color: #ea6b66;
+  font-weight: bold;
+}
+
+.product-description {
+  margin: 0;
+  color: #5c4d44;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }

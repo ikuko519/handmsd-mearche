@@ -1,21 +1,15 @@
-import { useEffect, useState } from 'react'
+import ProductListPage from './pages/ProductListPage.jsx'
 
 function App() {
-  const [status, setStatus] = useState('確認中...')
-
-  useEffect(() => {
-    fetch('/api/health')
-      .then((res) => res.json())
-      .then((data) => setStatus(`接続OK (${data.status})`))
-      .catch(() => setStatus('バックエンドに接続できません'))
-  }, [])
-
   return (
-    <main className="container">
-      <h1>Handmade Marche</h1>
-      <p>ハンドメイド作品のマーケット</p>
-      <p className="status">バックエンド: {status}</p>
-    </main>
+    <>
+      <header className="site-header">
+        <h1 className="site-title">Handmade Marche</h1>
+      </header>
+      <main className="container">
+        <ProductListPage />
+      </main>
+    </>
   )
 }
 
