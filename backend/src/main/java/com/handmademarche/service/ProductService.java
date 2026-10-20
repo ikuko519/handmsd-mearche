@@ -7,7 +7,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.handmademarche.dto.ProductCreateRequest;
+import com.handmademarche.dto.ProductUpdateRequest;
 import com.handmademarche.entity.Product;
+import com.handmademarche.exception.ProductNotFoundException;
 import com.handmademarche.repository.ProductRepository;
 
 /**
@@ -33,5 +35,17 @@ public class ProductService {
 	public Product create(ProductCreateRequest request) {
 		Product product = new Product(request.name(), request.price(), request.description());
 		return productRepository.save(product);
+	}
+
+	/** 指定したIDの商品の商品名・価格・商品説明を更新する。存在しない場合は ProductNotFoundException */
+	@Transactional
+	public Product update(Long id, ProductUpdateRequest request) {
+		Product product = productRepository.findById(id)
+				.orElseThrow(() -> new ProductNotFoundException(id));
+		product.setName(request.name());
+		product.setPrice(request.price());
+		product.setDescription(request.description());
+		// 取得したEntityを変更すると、トランザクション終了時に自動でUPDATEされる
+		return product;
 	}
 }
