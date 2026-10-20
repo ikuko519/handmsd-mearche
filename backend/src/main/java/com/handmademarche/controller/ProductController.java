@@ -41,6 +41,12 @@ public class ProductController {
 		return productService.findAll();
 	}
 
+	/** GET /api/products/{id} : 指定したIDの商品を返す（商品編集画面の初期表示で使う） */
+	@GetMapping("/{id}")
+	public Product get(@PathVariable Long id) {
+		return productService.findById(id);
+	}
+
 	/** POST /api/products : 商品を登録し、201 Created と登録した商品を返す */
 	@PostMapping
 	public ResponseEntity<Product> create(@Valid @RequestBody ProductCreateRequest request) {

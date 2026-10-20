@@ -6,10 +6,10 @@ import App from './App.jsx'
 import { jsonResponse } from './test/helpers.js'
 
 /**
- * バックエンドの代わり。POST で受け取った商品を保存し、GET で一覧として返す。
+ * バックエンドの代わり。POST で商品を保存、PUT で置き換え、GET で一覧・1件を返す。
  */
-function mockBackend() {
-  const products = []
+function mockBackend(initialProducts = []) {
+  const products = [...initialProducts]
   return vi.spyOn(globalThis, 'fetch').mockImplementation(async (url, options = {}) => {
     if (url === '/api/products' && options.method === 'POST') {
       const product = { id: products.length + 1, ...JSON.parse(options.body) }
@@ -19,7 +19,15 @@ function mockBackend() {
     if (url === '/api/products') {
       return jsonResponse(200, products)
     }
-    return jsonResponse(404, {})
+    const match = url.match(/^\/api\/products\/(\d+)$/)
+    const index = match ? products.findIndex((p) => p.id === Number(match[1])) : -1
+    if (index === -1) {
+      return jsonResponse(404, {})
+    }
+    if (options.method === 'PUT') {
+      products[index] = { id: products[index].id, ...JSON.parse(options.body) }
+    }
+    return jsonResponse(200, products[index])
   })
 }
 
@@ -63,5 +71,40 @@ describe('商品登録から一覧表示までの流れ', () => {
     renderApp('/')
 
     expect(await screen.findByRole('heading', { name: '商品一覧' })).toBeInTheDocument()
+  })
+})
+
+describe('商品編集から一覧表示までの流れ', () => {
+  it('一覧画面で商品を選び「編集する」→ 更新 → 一覧画面に変更内容が反映される', async () => {
+    mockBackend([
+      { id: 1, name: '手編みのマフラー', price: 3500, description: 'ウール100%です。', imageUrl: null },
+      { id: 2, name: '木製スプーン', price: 1200, description: '山桜です。', imageUrl: null },
+    ])
+    const user = renderApp('/products')
+
+    await user.click(await screen.findByRole('link', { name: '木製スプーンを編集する' }))
+
+    expect(screen.getByRole('heading', { name: '商品編集' })).toBeInTheDocument()
+    const nameInput = await screen.findByLabelText(/商品名/)
+    expect(nameInput).toHaveValue('木製スプーン')
+
+    await user.clear(nameInput)
+    await user.type(nameInput, '木製スプーン（大）')
+    await user.clear(screen.getByLabelText(/価格/))
+    await user.type(screen.getByLabelText(/価格/), '1500')
+    await user.type(screen.getByLabelText('画像URL'), 'https://example.com/spoon.jpg')
+    await user.click(screen.getByRole('button', { name: '更新する' }))
+
+    expect(await screen.findByText('商品を更新しました。')).toBeInTheDocument()
+    expect(await screen.findByText('木製スプーン（大）')).toBeInTheDocument()
+    expect(screen.getByText('1,500円')).toBeInTheDocument()
+    expect(screen.getByRole('img', { name: '木製スプーン（大）' })).toHaveAttribute(
+      'src',
+      'https://example.com/spoon.jpg',
+    )
+    // 編集していない商品はそのまま
+    expect(screen.getByText('手編みのマフラー')).toBeInTheDocument()
+    expect(screen.getByText('3,500円')).toBeInTheDocument()
+    expect(screen.queryByText('木製スプーン')).not.toBeInTheDocument()
   })
 })

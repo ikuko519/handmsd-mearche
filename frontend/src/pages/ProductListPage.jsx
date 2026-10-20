@@ -73,6 +73,15 @@ function ProductListPage() {
               {product.description && (
                 <p className="product-description">{product.description}</p>
               )}
+              <div className="product-actions">
+                <Link
+                  to={`/products/${product.id}/edit`}
+                  className="button button-secondary"
+                  aria-label={`${product.name}を編集する`}
+                >
+                  編集する
+                </Link>
+              </div>
             </div>
           </li>
         ))}

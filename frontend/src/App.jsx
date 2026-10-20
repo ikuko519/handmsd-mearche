@@ -1,5 +1,6 @@
 import { Link, Navigate, Route, Routes } from 'react-router-dom'
 import ProductCreatePage from './pages/ProductCreatePage.jsx'
+import ProductEditPage from './pages/ProductEditPage.jsx'
 import ProductListPage from './pages/ProductListPage.jsx'
 
 function App() {
@@ -15,6 +16,7 @@ function App() {
           <Route path="/" element={<Navigate to="/products" replace />} />
           <Route path="/products" element={<ProductListPage />} />
           <Route path="/products/new" element={<ProductCreatePage />} />
+          <Route path="/products/:id/edit" element={<ProductEditPage />} />
           <Route path="*" element={<Navigate to="/products" replace />} />
         </Routes>
       </main>

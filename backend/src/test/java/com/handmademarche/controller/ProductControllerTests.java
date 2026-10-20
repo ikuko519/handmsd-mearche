@@ -244,20 +244,96 @@ class ProductControllerTests {
 				.andExpect(jsonPath("$.errors.imageUrl").value("画像URLは500文字以内で入力してください"));
 	}
 
+	// ---- 商品1件取得 GET /api/products/{id} ----
+
 	@Test
-	void 商品を更新しても画像URLは変わらない() throws Exception {
+	void 指定したIDの商品を取得できる() throws Exception {
+		Product product = productRepository.save(
+				new Product("陶器のマグカップ", 2800, "手びねりです。", "https://example.com/images/mug.jpg"));
+		productRepository.save(new Product("別の商品", 1000, null));
+
+		mockMvc.perform(get("/api/products/{id}", product.getId()))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.id").value(product.getId()))
+				.andExpect(jsonPath("$.name").value("陶器のマグカップ"))
+				.andExpect(jsonPath("$.price").value(2800))
+				.andExpect(jsonPath("$.description").value("手びねりです。"))
+				.andExpect(jsonPath("$.imageUrl").value("https://example.com/images/mug.jpg"));
+	}
+
+	@Test
+	void 存在しない商品IDを取得すると404エラー() throws Exception {
+		mockMvc.perform(get("/api/products/{id}", 9999))
+				.andExpect(status().isNotFound())
+				.andExpect(jsonPath("$.message").value("商品が見つかりません（ID: 9999）"));
+	}
+
+	@Test
+	void 取得時に商品IDが数値でない場合は400エラー() throws Exception {
+		mockMvc.perform(get("/api/products/abc"))
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.message").value("リクエストの形式が正しくありません"));
+	}
+
+	// ---- 商品更新 PUT /api/products/{id} ----
+
+	@Test
+	void 画像URLを更新できる() throws Exception {
+		Product product = productRepository.save(
+				new Product("陶器のマグカップ", 2800, null, "https://example.com/images/old.jpg"));
+
+		mockMvc.perform(put("/api/products/{id}", product.getId()).contentType(MediaType.APPLICATION_JSON)
+				.content("""
+						{"name": "陶器のマグカップ", "price": 2800, "imageUrl": "https://example.com/images/new.jpg"}
+						"""))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.imageUrl").value("https://example.com/images/new.jpg"));
+
+		entityManager.flush();
+		entityManager.clear();
+		assertThat(productRepository.findById(product.getId()).orElseThrow().getImageUrl())
+				.isEqualTo("https://example.com/images/new.jpg");
+	}
+
+	@Test
+	void 画像URLを空文字または省略で更新すると画像なしになる() throws Exception {
+		Product first = productRepository.save(
+				new Product("陶器のマグカップ", 2800, null, "https://example.com/images/mug.jpg"));
+		Product second = productRepository.save(
+				new Product("木製スプーン", 1200, null, "https://example.com/images/spoon.jpg"));
+
+		mockMvc.perform(put("/api/products/{id}", first.getId()).contentType(MediaType.APPLICATION_JSON)
+				.content("""
+						{"name": "陶器のマグカップ", "price": 2800, "imageUrl": ""}
+						"""))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.imageUrl").doesNotExist());
+
+		mockMvc.perform(put("/api/products/{id}", second.getId()).contentType(MediaType.APPLICATION_JSON)
+				.content("""
+						{"name": "木製スプーン", "price": 1200}
+						"""))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.imageUrl").doesNotExist());
+	}
+
+	@Test
+	void 更新時に画像URLがhttpで始まらない場合は400エラーで変更されない() throws Exception {
 		Product product = productRepository.save(
 				new Product("陶器のマグカップ", 2800, null, "https://example.com/images/mug.jpg"));
 
 		mockMvc.perform(put("/api/products/{id}", product.getId()).contentType(MediaType.APPLICATION_JSON)
 				.content("""
-						{"name": "陶器のマグカップ（白）", "price": 3000}
+						{"name": "陶器のマグカップ", "price": 2800, "imageUrl": "javascript:alert(1)"}
 						"""))
-				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.imageUrl").value("https://example.com/images/mug.jpg"));
-	}
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.errors.imageUrl").value("画像URLは http:// または https:// で始まるURLを入力してください"));
 
-	// ---- 商品更新 PUT /api/products/{id} ----
+		entityManager.flush();
+		entityManager.clear();
+		assertThat(productRepository.findById(product.getId()).orElseThrow().getImageUrl())
+				.isEqualTo("https://example.com/images/mug.jpg");
+	}
 
 	@Test
 	void 商品を更新できる() throws Exception {

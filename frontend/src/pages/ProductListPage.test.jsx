@@ -50,6 +50,22 @@ describe('商品一覧画面', () => {
     expect(screen.getByText('商品画像')).toBeInTheDocument()
   })
 
+  it('各商品に、その商品の編集画面へのリンクを表示する', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      jsonResponse(200, [
+        { id: 3, name: '手編みのマフラー', price: 3500 },
+        { id: 7, name: '木製スプーン', price: 1200 },
+      ]),
+    )
+    renderPage()
+
+    expect(await screen.findByRole('link', { name: '手編みのマフラーを編集する' })).toHaveAttribute(
+      'href',
+      '/products/3/edit',
+    )
+    expect(screen.getByRole('link', { name: '木製スプーンを編集する' })).toHaveAttribute('href', '/products/7/edit')
+  })
+
   it('商品が0件でも「商品を登録する」ボタンを表示する', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(jsonResponse(200, []))
     renderPage()

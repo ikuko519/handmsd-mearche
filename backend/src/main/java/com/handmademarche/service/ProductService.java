@@ -30,16 +30,21 @@ public class ProductService {
 		return productRepository.findAll(Sort.by("id"));
 	}
 
+	/** 指定したIDの商品を取得する。存在しない場合は ProductNotFoundException */
+	public Product findById(Long id) {
+		return productRepository.findById(id)
+				.orElseThrow(() -> new ProductNotFoundException(id));
+	}
+
 	/** 商品を新規登録する */
 	@Transactional
 	public Product create(ProductCreateRequest request) {
-		// 画像URLが空文字の場合は「画像なし」として null で保存する
-		String imageUrl = (request.imageUrl() == null || request.imageUrl().isBlank()) ? null : request.imageUrl();
-		Product product = new Product(request.name(), request.price(), request.description(), imageUrl);
+		Product product = new Product(request.name(), request.price(), request.description(),
+				normalizeImageUrl(request.imageUrl()));
 		return productRepository.save(product);
 	}
 
-	/** 指定したIDの商品の商品名・価格・商品説明を更新する。存在しない場合は ProductNotFoundException */
+	/** 指定したIDの商品の商品名・価格・商品説明・画像URLを更新する。存在しない場合は ProductNotFoundException */
 	@Transactional
 	public Product update(Long id, ProductUpdateRequest request) {
 		Product product = productRepository.findById(id)
@@ -47,6 +52,7 @@ public class ProductService {
 		product.setName(request.name());
 		product.setPrice(request.price());
 		product.setDescription(request.description());
+		product.setImageUrl(normalizeImageUrl(request.imageUrl()));
 		// 取得したEntityを変更すると、トランザクション終了時に自動でUPDATEされる
 		return product;
 	}
@@ -57,5 +63,10 @@ public class ProductService {
 		Product product = productRepository.findById(id)
 				.orElseThrow(() -> new ProductNotFoundException(id));
 		productRepository.delete(product);
+	}
+
+	/** 画像URLが空文字の場合は「画像なし」として null にする */
+	private String normalizeImageUrl(String imageUrl) {
+		return (imageUrl == null || imageUrl.isBlank()) ? null : imageUrl;
 	}
 }

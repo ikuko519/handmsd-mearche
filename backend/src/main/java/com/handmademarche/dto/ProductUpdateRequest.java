@@ -3,12 +3,13 @@ package com.handmademarche.dto;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 /**
  * 商品更新APIのリクエスト。
  * 更新対象の id はURLで指定するため、本文では受け取らない。
- * 全項目を置き換える（PUT）ため、商品説明を省略すると空（null）になる。
+ * 全項目を置き換える（PUT）ため、商品説明・画像URLを省略すると空（null）になる。
  */
 public record ProductUpdateRequest(
 
@@ -24,5 +25,10 @@ public record ProductUpdateRequest(
 
 		/** 商品説明（任意） */
 		@Size(max = 1000, message = "商品説明は1000文字以内で入力してください")
-		String description) {
+		String description,
+
+		/** 商品画像のURL（任意）。空でなければ http:// または https:// で始まること */
+		@Size(max = 500, message = "画像URLは500文字以内で入力してください")
+		@Pattern(regexp = "^(https?://\\S+)?$", message = "画像URLは http:// または https:// で始まるURLを入力してください")
+		String imageUrl) {
 }

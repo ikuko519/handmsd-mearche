@@ -168,6 +168,15 @@ body {
   font-size: 0.875rem;
 }
 
+.back-link {
+  margin: 16px 0 0;
+  text-align: center;
+}
+
+.back-link a {
+  color: #ea6b66;
+}
+
 .form-actions {
   display: flex;
   gap: 12px;
@@ -227,6 +236,17 @@ img.product-image {
   margin: 0 0 8px;
   color: #ea6b66;
   font-weight: bold;
+}
+
+.product-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+
+.product-actions .button {
+  padding: 6px 16px;
+  font-size: 0.9rem;
 }
 
 .product-description {
