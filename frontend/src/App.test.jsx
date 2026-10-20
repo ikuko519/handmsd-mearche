@@ -1,49 +1,6 @@
-import { render, screen } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
-import { MemoryRouter } from 'react-router-dom'
+import { screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
-import App from './App.jsx'
-import { jsonResponse } from './test/helpers.js'
-
-/**
- * バックエンドの代わり。POST で商品を保存、PUT で置き換え、DELETE で削除、GET で一覧・1件を返す。
- */
-function mockBackend(initialProducts = []) {
-  const products = [...initialProducts]
-  let nextId = Math.max(0, ...products.map((p) => p.id)) + 1
-  return vi.spyOn(globalThis, 'fetch').mockImplementation(async (url, options = {}) => {
-    if (url === '/api/products' && options.method === 'POST') {
-      const product = { id: nextId++, ...JSON.parse(options.body) }
-      products.push(product)
-      return jsonResponse(201, product)
-    }
-    if (url === '/api/products') {
-      return jsonResponse(200, products)
-    }
-    const match = url.match(/^\/api\/products\/(\d+)$/)
-    const index = match ? products.findIndex((p) => p.id === Number(match[1])) : -1
-    if (index === -1) {
-      return jsonResponse(404, {})
-    }
-    if (options.method === 'DELETE') {
-      products.splice(index, 1)
-      return new Response(null, { status: 204 })
-    }
-    if (options.method === 'PUT') {
-      products[index] = { id: products[index].id, ...JSON.parse(options.body) }
-    }
-    return jsonResponse(200, products[index])
-  })
-}
-
-function renderApp(path) {
-  render(
-    <MemoryRouter initialEntries={[path]}>
-      <App />
-    </MemoryRouter>,
-  )
-  return userEvent.setup()
-}
+import { mockBackend, renderApp } from './test/mockBackend.jsx'
 
 describe('商品登録から一覧表示までの流れ', () => {
   it('一覧画面 →「商品を登録する」→ 登録 → 一覧画面に登録した商品が表示される', async () => {

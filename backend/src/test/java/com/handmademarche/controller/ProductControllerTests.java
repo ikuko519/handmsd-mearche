@@ -3,6 +3,9 @@ package com.handmademarche.controller;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.startsWith;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -14,13 +17,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.List;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.WebApplicationContext;
 
 import com.handmademarche.entity.Product;
 import com.handmademarche.repository.ProductRepository;
@@ -29,14 +34,22 @@ import jakarta.persistence.EntityManager;
 
 /**
  * 商品一覧・商品登録・商品更新・商品削除APIのテスト。本番用のDBファイルを汚さないよう、メモリ上のH2を使う。
+ * 未ログイン時の動作は AuthControllerTests で確認する。
  */
 @SpringBootTest(properties = "spring.datasource.url=jdbc:h2:mem:testdb")
-@AutoConfigureMockMvc
 @Transactional
 class ProductControllerTests {
 
-	@Autowired
 	private MockMvc mockMvc;
+
+	/** すべてのリクエストを「ログイン済み・CSRFトークン付き」で送るようにする */
+	@BeforeEach
+	void setUpMockMvc(WebApplicationContext context) {
+		mockMvc = MockMvcBuilders.webAppContextSetup(context)
+				.apply(springSecurity())
+				.defaultRequest(get("/").with(user("user1")).with(csrf()))
+				.build();
+	}
 
 	@Autowired
 	private ProductRepository productRepository;

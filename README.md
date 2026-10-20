@@ -39,4 +39,23 @@ npm install
 npm run dev
 ```
 
-http://localhost:5173 を開き、「バックエンド: 接続OK」と表示されれば連携成功。
+http://localhost:5173 を開くとログイン画面が表示される。
+
+### ログイン
+
+すべての画面・API（`/api/health` を除く）はログインが必要。
+初回起動時、利用者が1人もいなければ次の初期ユーザーが作成される（開発・デモ用）。
+
+| ログインID | パスワード |
+| --- | --- |
+| `user1` | `password123` |
+
+初期ユーザーは `backend/src/main/resources/application.properties` の `app.initial-user.*` で変更できる
+（すでに利用者がいる場合は作成されないため、変更を反映するには `backend/data/` を削除してから起動する）。
+
+## テスト
+
+```bash
+cd backend && ./mvnw test     # Windows (PowerShell) は .\mvnw.cmd test
+cd frontend && npm test
+```

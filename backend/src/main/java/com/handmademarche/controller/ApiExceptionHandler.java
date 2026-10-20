@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -15,7 +16,8 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import com.handmademarche.exception.ProductNotFoundException;
 
 /**
- * API共通のエラー処理。入力エラーを 400 Bad Request、存在しない商品を 404 Not Found として分かりやすい形で返す。
+ * API共通のエラー処理。入力エラーを 400 Bad Request、ログイン失敗を 401 Unauthorized、
+ * 存在しない商品を 404 Not Found として分かりやすい形で返す。
  */
 @RestControllerAdvice
 public class ApiExceptionHandler {
@@ -43,6 +45,16 @@ public class ApiExceptionHandler {
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	public Map<String, Object> handleTypeMismatch(MethodArgumentTypeMismatchException e) {
 		return Map.of("message", "リクエストの形式が正しくありません");
+	}
+
+	/**
+	 * ログインIDまたはパスワードが違う場合。
+	 * どちらが違うかを教えると、存在するログインIDを推測されるため、同じメッセージにする。
+	 */
+	@ExceptionHandler(AuthenticationException.class)
+	@ResponseStatus(HttpStatus.UNAUTHORIZED)
+	public Map<String, Object> handleAuthentication(AuthenticationException e) {
+		return Map.of("message", "ログインIDまたはパスワードが正しくありません");
 	}
 
 	/** 指定したIDの商品が存在しない場合 */

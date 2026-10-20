@@ -1,30 +1,19 @@
-// 商品APIの呼び出し。/api は vite.config.js のプロキシで Spring Boot (8080) に転送される。
+// 商品APIの呼び出し。ログインしていない場合、どのAPIも 401 を返す。
+import { apiFetch, throwApiError } from './http.js'
 
-/** APIがエラーを返したときの例外。入力エラー（400）の場合は項目ごとのメッセージを持つ */
-export class ApiError extends Error {
-  constructor(message, status, fieldErrors = {}) {
-    super(message)
-    this.name = 'ApiError'
-    this.status = status
-    this.fieldErrors = fieldErrors
-  }
-}
+export { ApiError } from './http.js'
 
 /** 商品一覧を取得する（GET /api/products） */
 export async function fetchProducts({ signal } = {}) {
-  const res = await fetch('/api/products', { signal })
-  if (!res.ok) {
-    throw new ApiError(`商品一覧の取得に失敗しました（HTTP ${res.status}）`, res.status)
-  }
+  const res = await apiFetch('/api/products', { signal })
+  if (!res.ok) await throwApiError(res, '商品一覧の取得に失敗しました')
   return res.json()
 }
 
 /** 指定したIDの商品を取得する（GET /api/products/{id}）。存在しない場合は status 404 の ApiError */
 export async function fetchProduct(id, { signal } = {}) {
-  const res = await fetch(`/api/products/${encodeURIComponent(id)}`, { signal })
-  if (!res.ok) {
-    throw new ApiError(`商品の取得に失敗しました（HTTP ${res.status}）`, res.status)
-  }
+  const res = await apiFetch(`/api/products/${encodeURIComponent(id)}`, { signal })
+  if (!res.ok) await throwApiError(res, '商品の取得に失敗しました')
   return res.json()
 }
 
@@ -40,24 +29,18 @@ export async function updateProduct(id, product) {
 
 /** 商品を削除する（DELETE /api/products/{id}）。成功時は 204 No Content で本文なし */
 export async function deleteProduct(id) {
-  const res = await fetch(`/api/products/${encodeURIComponent(id)}`, { method: 'DELETE' })
-  if (!res.ok) {
-    const body = await res.json().catch(() => ({}))
-    throw new ApiError(body.message ?? `商品の削除に失敗しました（HTTP ${res.status}）`, res.status)
-  }
+  const res = await apiFetch(`/api/products/${encodeURIComponent(id)}`, { method: 'DELETE' })
+  if (!res.ok) await throwApiError(res, '商品の削除に失敗しました')
 }
 
 /** 商品データを JSON で送信する（登録・更新で共通） */
 async function sendProduct(url, method, product, failureMessage) {
-  const res = await fetch(url, {
+  const res = await apiFetch(url, {
     method,
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(product),
   })
-  if (!res.ok) {
-    // バックエンドの ApiExceptionHandler は {"message": ..., "errors": {項目: メッセージ}} を返す
-    const body = await res.json().catch(() => ({}))
-    throw new ApiError(body.message ?? `${failureMessage}（HTTP ${res.status}）`, res.status, body.errors ?? {})
-  }
+  // バックエンドの ApiExceptionHandler は {"message": ..., "errors": {項目: メッセージ}} を返す
+  if (!res.ok) await throwApiError(res, failureMessage)
   return res.json()
 }
