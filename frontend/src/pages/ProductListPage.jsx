@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { fetchProducts } from '../api/products.js'
+import ProductImage from '../components/ProductImage.jsx'
 
 /** 価格を「3,500円」の形式にする */
 function formatPrice(price) {
@@ -11,9 +13,20 @@ function formatPrice(price) {
  * 登録されている商品をカード形式で一覧表示する。
  */
 function ProductListPage() {
+  const location = useLocation()
+  const navigate = useNavigate()
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  // 商品登録画面から戻ってきたときの完了メッセージ
+  const [notice] = useState(location.state?.message ?? null)
+
+  useEffect(() => {
+    // 再読み込みで完了メッセージが再表示されないよう、受け取ったら履歴から消しておく
+    if (location.state?.message) {
+      navigate(location.pathname, { replace: true, state: null })
+    }
+  }, [location, navigate])
 
   useEffect(() => {
     // 画面を離れたときに通信を中断する
@@ -33,36 +46,27 @@ function ProductListPage() {
     return () => controller.abort()
   }, [])
 
+  let content
   if (loading) {
-    return (
+    content = (
       <p className="message" role="status">
         商品を読み込み中です...
       </p>
     )
-  }
-
-  if (error) {
-    return (
+  } else if (error) {
+    content = (
       <p className="message message-error" role="alert">
         {error}
       </p>
     )
-  }
-
-  if (products.length === 0) {
-    return <p className="message">現在、出品されている商品はありません。</p>
-  }
-
-  return (
-    <section>
-      <h2 className="page-title">商品一覧</h2>
+  } else if (products.length === 0) {
+    content = <p className="message">現在、出品されている商品はありません。</p>
+  } else {
+    content = (
       <ul className="product-grid">
         {products.map((product) => (
           <li key={product.id} className="product-card">
-            {/* 商品画像は未実装のため枠のみ表示 */}
-            <div className="product-image" aria-hidden="true">
-              商品画像
-            </div>
+            <ProductImage src={product.imageUrl} alt={product.name} />
             <div className="product-body">
               <h3 className="product-name">{product.name}</h3>
               <p className="product-price">{formatPrice(product.price)}</p>
@@ -73,6 +77,23 @@ function ProductListPage() {
           </li>
         ))}
       </ul>
+    )
+  }
+
+  return (
+    <section>
+      <div className="page-header">
+        <h2 className="page-title">商品一覧</h2>
+        <Link to="/products/new" className="button">
+          商品を登録する
+        </Link>
+      </div>
+      {notice && (
+        <p className="message message-success" role="status">
+          {notice}
+        </p>
+      )}
+      {content}
     </section>
   )
 }

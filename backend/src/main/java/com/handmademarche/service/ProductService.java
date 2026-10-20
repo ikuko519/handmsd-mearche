@@ -33,7 +33,9 @@ public class ProductService {
 	/** 商品を新規登録する */
 	@Transactional
 	public Product create(ProductCreateRequest request) {
-		Product product = new Product(request.name(), request.price(), request.description());
+		// 画像URLが空文字の場合は「画像なし」として null で保存する
+		String imageUrl = (request.imageUrl() == null || request.imageUrl().isBlank()) ? null : request.imageUrl();
+		Product product = new Product(request.name(), request.price(), request.description(), imageUrl);
 		return productRepository.save(product);
 	}
 

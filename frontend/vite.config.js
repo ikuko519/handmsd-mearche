@@ -11,4 +11,9 @@ export default defineConfig({
       '/api': 'http://localhost:8080',
     },
   },
+  // テスト（Vitest）の設定。ブラウザの代わりに jsdom で画面を動かす
+  test: {
+    environment: 'jsdom',
+    setupFiles: './src/test/setup.js',
+  },
 })

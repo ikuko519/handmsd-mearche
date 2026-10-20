@@ -40,14 +40,24 @@ public class Product {
 	@Column(length = 1000)
 	private String description;
 
+	/** 商品画像のURL（任意） */
+	@Size(max = 500)
+	@Column(length = 500)
+	private String imageUrl;
+
 	/** JPAが使うため、引数なしコンストラクタが必要 */
 	protected Product() {
 	}
 
 	public Product(String name, Integer price, String description) {
+		this(name, price, description, null);
+	}
+
+	public Product(String name, Integer price, String description, String imageUrl) {
 		this.name = name;
 		this.price = price;
 		this.description = description;
+		this.imageUrl = imageUrl;
 	}
 
 	public Long getId() {
@@ -76,5 +86,13 @@ public class Product {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public String getImageUrl() {
+		return imageUrl;
+	}
+
+	public void setImageUrl(String imageUrl) {
+		this.imageUrl = imageUrl;
 	}
 }

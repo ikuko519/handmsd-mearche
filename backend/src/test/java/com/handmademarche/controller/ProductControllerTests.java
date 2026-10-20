@@ -193,6 +193,70 @@ class ProductControllerTests {
 		assertThat(productRepository.count()).isZero();
 	}
 
+	// ---- 商品登録：画像URL ----
+
+	@Test
+	void 画像URL付きで商品を登録でき一覧にも含まれる() throws Exception {
+		mockMvc.perform(post("/api/products").contentType(MediaType.APPLICATION_JSON)
+				.content("""
+						{"name": "陶器のマグカップ", "price": 2800, "imageUrl": "https://example.com/images/mug.jpg"}
+						"""))
+				.andExpect(status().isCreated())
+				.andExpect(jsonPath("$.imageUrl").value("https://example.com/images/mug.jpg"));
+
+		mockMvc.perform(get("/api/products"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$[0].imageUrl").value("https://example.com/images/mug.jpg"));
+	}
+
+	@Test
+	void 画像URLが空文字の場合は画像なしで登録される() throws Exception {
+		mockMvc.perform(post("/api/products").contentType(MediaType.APPLICATION_JSON)
+				.content("""
+						{"name": "陶器のマグカップ", "price": 2800, "imageUrl": ""}
+						"""))
+				.andExpect(status().isCreated())
+				.andExpect(jsonPath("$.imageUrl").doesNotExist());
+
+		assertThat(productRepository.findAll().get(0).getImageUrl()).isNull();
+	}
+
+	@Test
+	void 画像URLがhttpで始まらない場合は400エラー() throws Exception {
+		mockMvc.perform(post("/api/products").contentType(MediaType.APPLICATION_JSON)
+				.content("""
+						{"name": "陶器のマグカップ", "price": 2800, "imageUrl": "javascript:alert(1)"}
+						"""))
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.errors.imageUrl").value("画像URLは http:// または https:// で始まるURLを入力してください"));
+
+		assertThat(productRepository.count()).isZero();
+	}
+
+	@Test
+	void 画像URLが501文字以上の場合は400エラー() throws Exception {
+		String longUrl = "https://example.com/" + "a".repeat(481);
+		mockMvc.perform(post("/api/products").contentType(MediaType.APPLICATION_JSON)
+				.content("""
+						{"name": "陶器のマグカップ", "price": 2800, "imageUrl": "%s"}
+						""".formatted(longUrl)))
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.errors.imageUrl").value("画像URLは500文字以内で入力してください"));
+	}
+
+	@Test
+	void 商品を更新しても画像URLは変わらない() throws Exception {
+		Product product = productRepository.save(
+				new Product("陶器のマグカップ", 2800, null, "https://example.com/images/mug.jpg"));
+
+		mockMvc.perform(put("/api/products/{id}", product.getId()).contentType(MediaType.APPLICATION_JSON)
+				.content("""
+						{"name": "陶器のマグカップ（白）", "price": 3000}
+						"""))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.imageUrl").value("https://example.com/images/mug.jpg"));
+	}
+
 	// ---- 商品更新 PUT /api/products/{id} ----
 
 	@Test

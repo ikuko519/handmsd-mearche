@@ -3,6 +3,7 @@ package com.handmademarche.dto;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 /**
@@ -23,5 +24,10 @@ public record ProductCreateRequest(
 
 		/** 商品説明（任意） */
 		@Size(max = 1000, message = "商品説明は1000文字以内で入力してください")
-		String description) {
+		String description,
+
+		/** 商品画像のURL（任意）。空でなければ http:// または https:// で始まること */
+		@Size(max = 500, message = "画像URLは500文字以内で入力してください")
+		@Pattern(regexp = "^(https?://\\S+)?$", message = "画像URLは http:// または https:// で始まるURLを入力してください")
+		String imageUrl) {
 }
