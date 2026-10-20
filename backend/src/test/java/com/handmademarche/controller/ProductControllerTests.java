@@ -3,9 +3,11 @@ package com.handmademarche.controller;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.startsWith;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -26,7 +28,7 @@ import com.handmademarche.repository.ProductRepository;
 import jakarta.persistence.EntityManager;
 
 /**
- * 商品一覧・商品登録・商品更新APIのテスト。本番用のDBファイルを汚さないよう、メモリ上のH2を使う。
+ * 商品一覧・商品登録・商品更新・商品削除APIのテスト。本番用のDBファイルを汚さないよう、メモリ上のH2を使う。
  */
 @SpringBootTest(properties = "spring.datasource.url=jdbc:h2:mem:testdb")
 @AutoConfigureMockMvc
@@ -365,6 +367,81 @@ class ProductControllerTests {
 				.content("""
 						{"name": "手編みのマフラー", "price": "abc"}
 						"""))
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.message").value("リクエストの形式が正しくありません"));
+	}
+
+	// ---- 商品削除 DELETE /api/products/{id} ----
+
+	@Test
+	void 商品を削除できる() throws Exception {
+		Product product = productRepository.save(new Product("手編みのマフラー", 3500, "ウール100%の手編みマフラーです。"));
+
+		mockMvc.perform(delete("/api/products/{id}", product.getId()))
+				.andExpect(status().isNoContent())
+				.andExpect(content().string(""));
+
+		// メモリ上のキャッシュではなく、DBから消えていることを確認する
+		entityManager.flush();
+		entityManager.clear();
+		assertThat(productRepository.findById(product.getId())).isEmpty();
+		assertThat(productRepository.count()).isZero();
+	}
+
+	@Test
+	void 削除した商品は一覧に表示されず他の商品は残る() throws Exception {
+		Product target = productRepository.save(new Product("木製スプーン", 1200, null));
+		productRepository.save(new Product("陶器のマグカップ", 2800, null));
+
+		mockMvc.perform(delete("/api/products/{id}", target.getId()))
+				.andExpect(status().isNoContent());
+
+		mockMvc.perform(get("/api/products"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.length()").value(1))
+				.andExpect(jsonPath("$[0].name").value("陶器のマグカップ"));
+	}
+
+	@Test
+	void 削除した商品は更新できず404エラー() throws Exception {
+		Product product = productRepository.save(new Product("刺繍のハンカチ", 900, null));
+
+		mockMvc.perform(delete("/api/products/{id}", product.getId()))
+				.andExpect(status().isNoContent());
+
+		mockMvc.perform(put("/api/products/{id}", product.getId()).contentType(MediaType.APPLICATION_JSON)
+				.content("""
+						{"name": "刺繍のハンカチ", "price": 1000}
+						"""))
+				.andExpect(status().isNotFound());
+	}
+
+	@Test
+	void 同じ商品を2回削除すると2回目は404エラー() throws Exception {
+		Product product = productRepository.save(new Product("刺繍のハンカチ", 900, null));
+
+		mockMvc.perform(delete("/api/products/{id}", product.getId()))
+				.andExpect(status().isNoContent());
+
+		mockMvc.perform(delete("/api/products/{id}", product.getId()))
+				.andExpect(status().isNotFound())
+				.andExpect(jsonPath("$.message").value("商品が見つかりません（ID: " + product.getId() + "）"));
+	}
+
+	@Test
+	void 存在しない商品IDを削除すると404エラーで他の商品は消えない() throws Exception {
+		productRepository.save(new Product("手編みのマフラー", 3500, null));
+
+		mockMvc.perform(delete("/api/products/{id}", 9999))
+				.andExpect(status().isNotFound())
+				.andExpect(jsonPath("$.message").value("商品が見つかりません（ID: 9999）"));
+
+		assertThat(productRepository.count()).isEqualTo(1);
+	}
+
+	@Test
+	void 削除時に商品IDが数値でない場合は400エラー() throws Exception {
+		mockMvc.perform(delete("/api/products/abc"))
 				.andExpect(status().isBadRequest())
 				.andExpect(jsonPath("$.message").value("リクエストの形式が正しくありません"));
 	}

@@ -48,4 +48,12 @@ public class ProductService {
 		// 取得したEntityを変更すると、トランザクション終了時に自動でUPDATEされる
 		return product;
 	}
+
+	/** 指定したIDの商品を削除する。存在しない場合は ProductNotFoundException */
+	@Transactional
+	public void delete(Long id) {
+		Product product = productRepository.findById(id)
+				.orElseThrow(() -> new ProductNotFoundException(id));
+		productRepository.delete(product);
+	}
 }
