@@ -38,6 +38,15 @@ export async function updateProduct(id, product) {
   return sendProduct(`/api/products/${encodeURIComponent(id)}`, 'PUT', product, '商品の更新に失敗しました')
 }
 
+/** 商品を削除する（DELETE /api/products/{id}）。成功時は 204 No Content で本文なし */
+export async function deleteProduct(id) {
+  const res = await fetch(`/api/products/${encodeURIComponent(id)}`, { method: 'DELETE' })
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}))
+    throw new ApiError(body.message ?? `商品の削除に失敗しました（HTTP ${res.status}）`, res.status)
+  }
+}
+
 /** 商品データを JSON で送信する（登録・更新で共通） */
 async function sendProduct(url, method, product, failureMessage) {
   const res = await fetch(url, {

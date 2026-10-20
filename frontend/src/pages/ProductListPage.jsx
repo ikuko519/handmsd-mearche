@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { fetchProducts } from '../api/products.js'
+import { deleteProduct, fetchProducts } from '../api/products.js'
 import ProductImage from '../components/ProductImage.jsx'
 
 /** 価格を「3,500円」の形式にする */
@@ -18,8 +18,11 @@ function ProductListPage() {
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  // 商品登録画面から戻ってきたときの完了メッセージ
-  const [notice] = useState(location.state?.message ?? null)
+  // 完了メッセージ（登録・編集画面から戻ってきたとき、削除したとき）
+  const [notice, setNotice] = useState(location.state?.message ?? null)
+  const [deleteError, setDeleteError] = useState(null)
+  // 削除処理中の商品ID（二重クリック防止）
+  const [deletingId, setDeletingId] = useState(null)
 
   useEffect(() => {
     // 再読み込みで完了メッセージが再表示されないよう、受け取ったら履歴から消しておく
@@ -45,6 +48,31 @@ function ProductListPage() {
 
     return () => controller.abort()
   }, [])
+
+  const handleDelete = async (product) => {
+    if (!window.confirm(`「${product.name}」を削除しますか？\nこの操作は取り消せません。`)) return
+
+    setNotice(null)
+    setDeleteError(null)
+    setDeletingId(product.id)
+    const removeFromList = () => setProducts((prev) => prev.filter((p) => p.id !== product.id))
+    try {
+      await deleteProduct(product.id)
+      removeFromList()
+      setNotice(`「${product.name}」を削除しました。`)
+    } catch (err) {
+      console.error(err)
+      if (err.status === 404) {
+        // 別の画面などですでに削除されていた場合は、一覧からも消す
+        removeFromList()
+        setNotice(`「${product.name}」はすでに削除されていました。`)
+      } else {
+        setDeleteError(`「${product.name}」を削除できませんでした。時間をおいて再度お試しください。`)
+      }
+    } finally {
+      setDeletingId(null)
+    }
+  }
 
   let content
   if (loading) {
@@ -81,6 +109,15 @@ function ProductListPage() {
                 >
                   編集する
                 </Link>
+                <button
+                  type="button"
+                  className="button button-danger"
+                  aria-label={`${product.name}を削除する`}
+                  disabled={deletingId !== null}
+                  onClick={() => handleDelete(product)}
+                >
+                  {deletingId === product.id ? '削除中...' : '削除する'}
+                </button>
               </div>
             </div>
           </li>
@@ -100,6 +137,11 @@ function ProductListPage() {
       {notice && (
         <p className="message message-success" role="status">
           {notice}
+        </p>
+      )}
+      {deleteError && (
+        <p className="message message-error message-inline" role="alert">
+          {deleteError}
         </p>
       )}
       {content}

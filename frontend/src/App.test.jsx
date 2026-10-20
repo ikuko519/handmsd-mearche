@@ -6,13 +6,14 @@ import App from './App.jsx'
 import { jsonResponse } from './test/helpers.js'
 
 /**
- * バックエンドの代わり。POST で商品を保存、PUT で置き換え、GET で一覧・1件を返す。
+ * バックエンドの代わり。POST で商品を保存、PUT で置き換え、DELETE で削除、GET で一覧・1件を返す。
  */
 function mockBackend(initialProducts = []) {
   const products = [...initialProducts]
+  let nextId = Math.max(0, ...products.map((p) => p.id)) + 1
   return vi.spyOn(globalThis, 'fetch').mockImplementation(async (url, options = {}) => {
     if (url === '/api/products' && options.method === 'POST') {
-      const product = { id: products.length + 1, ...JSON.parse(options.body) }
+      const product = { id: nextId++, ...JSON.parse(options.body) }
       products.push(product)
       return jsonResponse(201, product)
     }
@@ -23,6 +24,10 @@ function mockBackend(initialProducts = []) {
     const index = match ? products.findIndex((p) => p.id === Number(match[1])) : -1
     if (index === -1) {
       return jsonResponse(404, {})
+    }
+    if (options.method === 'DELETE') {
+      products.splice(index, 1)
+      return new Response(null, { status: 204 })
     }
     if (options.method === 'PUT') {
       products[index] = { id: products[index].id, ...JSON.parse(options.body) }
@@ -106,5 +111,26 @@ describe('商品編集から一覧表示までの流れ', () => {
     expect(screen.getByText('手編みのマフラー')).toBeInTheDocument()
     expect(screen.getByText('3,500円')).toBeInTheDocument()
     expect(screen.queryByText('木製スプーン')).not.toBeInTheDocument()
+  })
+})
+
+describe('商品削除の流れ', () => {
+  it('一覧画面で商品を削除すると、別の画面から戻っても一覧に表示されない', async () => {
+    mockBackend([
+      { id: 1, name: '手編みのマフラー', price: 3500, description: null, imageUrl: null },
+      { id: 2, name: '木製スプーン', price: 1200, description: null, imageUrl: null },
+    ])
+    vi.spyOn(window, 'confirm').mockReturnValue(true)
+    const user = renderApp('/products')
+
+    await user.click(await screen.findByRole('button', { name: '手編みのマフラーを削除する' }))
+    expect(await screen.findByText('「手編みのマフラー」を削除しました。')).toBeInTheDocument()
+
+    // 登録画面へ移動してキャンセルで戻る（一覧をAPIから取り直す）
+    await user.click(screen.getByRole('link', { name: '商品を登録する' }))
+    await user.click(screen.getByRole('link', { name: 'キャンセル' }))
+
+    expect(await screen.findByRole('heading', { name: '木製スプーン' })).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: '手編みのマフラー' })).not.toBeInTheDocument()
   })
 })

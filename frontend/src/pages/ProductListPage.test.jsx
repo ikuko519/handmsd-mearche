@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
 import { jsonResponse } from '../test/helpers.js'
@@ -10,6 +11,28 @@ function renderPage() {
       <ProductListPage />
     </MemoryRouter>,
   )
+  return userEvent.setup()
+}
+
+const muffler = { id: 3, name: '手編みのマフラー', price: 3500 }
+const spoon = { id: 7, name: '木製スプーン', price: 1200 }
+
+/**
+ * fetch の代わり。一覧取得（GET）には products を返し、DELETE には deleteResponse を返す。
+ * deleteResponse に関数を渡した場合は、その戻り値（Promise など）を返す。
+ */
+function mockFetch({ products = [muffler, spoon], deleteResponse = new Response(null, { status: 204 }) } = {}) {
+  return vi.spyOn(globalThis, 'fetch').mockImplementation(async (url, options = {}) => {
+    if (options.method === 'DELETE') {
+      return typeof deleteResponse === 'function' ? deleteResponse() : deleteResponse
+    }
+    return jsonResponse(200, products)
+  })
+}
+
+/** DELETE が呼ばれた回数 */
+function deleteCalls(fetchMock) {
+  return fetchMock.mock.calls.filter(([, options]) => options?.method === 'DELETE')
 }
 
 describe('商品一覧画面', () => {
@@ -82,5 +105,98 @@ describe('商品一覧画面', () => {
     expect(
       await screen.findByText('商品一覧を表示できませんでした。時間をおいて再度お試しください。'),
     ).toBeInTheDocument()
+  })
+})
+
+describe('商品一覧画面：商品削除', () => {
+  it('各商品に削除ボタンを表示する', async () => {
+    mockFetch()
+    renderPage()
+
+    expect(await screen.findByRole('button', { name: '手編みのマフラーを削除する' })).toBeEnabled()
+    expect(screen.getByRole('button', { name: '木製スプーンを削除する' })).toBeEnabled()
+  })
+
+  it('確認ダイアログでOKを押すと削除し、その商品だけ一覧から消えて完了メッセージを表示する', async () => {
+    const fetchMock = mockFetch()
+    const confirmMock = vi.spyOn(window, 'confirm').mockReturnValue(true)
+    const user = renderPage()
+
+    await user.click(await screen.findByRole('button', { name: '木製スプーンを削除する' }))
+
+    expect(confirmMock).toHaveBeenCalledWith('「木製スプーン」を削除しますか？\nこの操作は取り消せません。')
+    expect(await screen.findByText('「木製スプーン」を削除しました。')).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: '木製スプーン' })).not.toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: '手編みのマフラー' })).toBeInTheDocument()
+
+    const calls = deleteCalls(fetchMock)
+    expect(calls).toHaveLength(1)
+    expect(calls[0][0]).toBe('/api/products/7')
+  })
+
+  it('確認ダイアログでキャンセルを押すと削除しない', async () => {
+    const fetchMock = mockFetch()
+    vi.spyOn(window, 'confirm').mockReturnValue(false)
+    const user = renderPage()
+
+    await user.click(await screen.findByRole('button', { name: '木製スプーンを削除する' }))
+
+    expect(deleteCalls(fetchMock)).toHaveLength(0)
+    expect(screen.getByRole('heading', { name: '木製スプーン' })).toBeInTheDocument()
+    expect(screen.queryByText(/削除しました/)).not.toBeInTheDocument()
+  })
+
+  it('最後の1件を削除すると「商品はありません」と表示する', async () => {
+    mockFetch({ products: [muffler] })
+    vi.spyOn(window, 'confirm').mockReturnValue(true)
+    const user = renderPage()
+
+    await user.click(await screen.findByRole('button', { name: '手編みのマフラーを削除する' }))
+
+    expect(await screen.findByText('「手編みのマフラー」を削除しました。')).toBeInTheDocument()
+    expect(screen.getByText('現在、出品されている商品はありません。')).toBeInTheDocument()
+  })
+
+  it('すでに削除されていた場合（404）は、一覧から消してその旨を表示する', async () => {
+    mockFetch({ deleteResponse: jsonResponse(404, { message: '商品が見つかりません（ID: 7）' }) })
+    vi.spyOn(window, 'confirm').mockReturnValue(true)
+    vi.spyOn(console, 'error').mockImplementation(() => {})
+    const user = renderPage()
+
+    await user.click(await screen.findByRole('button', { name: '木製スプーンを削除する' }))
+
+    expect(await screen.findByText('「木製スプーン」はすでに削除されていました。')).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: '木製スプーン' })).not.toBeInTheDocument()
+  })
+
+  it.each([
+    ['サーバーエラー（500）', () => jsonResponse(500, {})],
+    ['通信失敗', () => Promise.reject(new TypeError('Failed to fetch'))],
+  ])('%sの場合はエラーを表示し、商品は一覧に残り、再度削除できる', async (_label, deleteResponse) => {
+    mockFetch({ deleteResponse })
+    vi.spyOn(window, 'confirm').mockReturnValue(true)
+    vi.spyOn(console, 'error').mockImplementation(() => {})
+    const user = renderPage()
+
+    await user.click(await screen.findByRole('button', { name: '木製スプーンを削除する' }))
+
+    expect(
+      await screen.findByText('「木製スプーン」を削除できませんでした。時間をおいて再度お試しください。'),
+    ).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: '木製スプーン' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '木製スプーンを削除する' })).toBeEnabled()
+  })
+
+  it('削除中はすべての削除ボタンを押せない（二重削除の防止）', async () => {
+    mockFetch({ deleteResponse: () => new Promise(() => {}) })
+    vi.spyOn(window, 'confirm').mockReturnValue(true)
+    const user = renderPage()
+
+    await user.click(await screen.findByRole('button', { name: '木製スプーンを削除する' }))
+
+    const deleting = screen.getByRole('button', { name: '木製スプーンを削除する' })
+    expect(deleting).toBeDisabled()
+    expect(deleting).toHaveTextContent('削除中...')
+    expect(screen.getByRole('button', { name: '手編みのマフラーを削除する' })).toBeDisabled()
   })
 })
