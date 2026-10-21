@@ -14,10 +14,14 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import com.handmademarche.exception.ProductNotFoundException;
+import com.handmademarche.exception.ProductPurchasedException;
+import com.handmademarche.exception.PurchaseAccessDeniedException;
+import com.handmademarche.exception.PurchaseNotFoundException;
 
 /**
  * API共通のエラー処理。入力エラーを 400 Bad Request、ログイン失敗を 401 Unauthorized、
- * 存在しない商品を 404 Not Found として分かりやすい形で返す。
+ * 他人の購入情報を 403 Forbidden、存在しない商品・購入情報を 404 Not Found、
+ * 購入された商品の削除を 409 Conflict として分かりやすい形で返す。
  */
 @RestControllerAdvice
 public class ApiExceptionHandler {
@@ -61,6 +65,27 @@ public class ApiExceptionHandler {
 	@ExceptionHandler(ProductNotFoundException.class)
 	@ResponseStatus(HttpStatus.NOT_FOUND)
 	public Map<String, Object> handleProductNotFound(ProductNotFoundException e) {
+		return Map.of("message", e.getMessage());
+	}
+
+	/** 購入された商品を削除しようとした場合 */
+	@ExceptionHandler(ProductPurchasedException.class)
+	@ResponseStatus(HttpStatus.CONFLICT)
+	public Map<String, Object> handleProductPurchased(ProductPurchasedException e) {
+		return Map.of("message", e.getMessage());
+	}
+
+	/** 指定したIDの購入情報が存在しない場合 */
+	@ExceptionHandler(PurchaseNotFoundException.class)
+	@ResponseStatus(HttpStatus.NOT_FOUND)
+	public Map<String, Object> handlePurchaseNotFound(PurchaseNotFoundException e) {
+		return Map.of("message", e.getMessage());
+	}
+
+	/** 他の利用者の購入情報を取得しようとした場合 */
+	@ExceptionHandler(PurchaseAccessDeniedException.class)
+	@ResponseStatus(HttpStatus.FORBIDDEN)
+	public Map<String, Object> handlePurchaseAccessDenied(PurchaseAccessDeniedException e) {
 		return Map.of("message", e.getMessage());
 	}
 }

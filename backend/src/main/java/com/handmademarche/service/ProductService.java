@@ -10,7 +10,9 @@ import com.handmademarche.dto.ProductCreateRequest;
 import com.handmademarche.dto.ProductUpdateRequest;
 import com.handmademarche.entity.Product;
 import com.handmademarche.exception.ProductNotFoundException;
+import com.handmademarche.exception.ProductPurchasedException;
 import com.handmademarche.repository.ProductRepository;
+import com.handmademarche.repository.PurchaseRepository;
 
 /**
  * 商品に関する業務処理。
@@ -20,9 +22,11 @@ import com.handmademarche.repository.ProductRepository;
 public class ProductService {
 
 	private final ProductRepository productRepository;
+	private final PurchaseRepository purchaseRepository;
 
-	public ProductService(ProductRepository productRepository) {
+	public ProductService(ProductRepository productRepository, PurchaseRepository purchaseRepository) {
 		this.productRepository = productRepository;
+		this.purchaseRepository = purchaseRepository;
 	}
 
 	/** 商品一覧をID順で取得する */
@@ -57,11 +61,17 @@ public class ProductService {
 		return product;
 	}
 
-	/** 指定したIDの商品を削除する。存在しない場合は ProductNotFoundException */
+	/**
+	 * 指定したIDの商品を削除する。存在しない場合は ProductNotFoundException、
+	 * 購入されている場合は（購入情報が商品を参照しているため）ProductPurchasedException
+	 */
 	@Transactional
 	public void delete(Long id) {
 		Product product = productRepository.findById(id)
 				.orElseThrow(() -> new ProductNotFoundException(id));
+		if (purchaseRepository.existsByProductId(id)) {
+			throw new ProductPurchasedException(id);
+		}
 		productRepository.delete(product);
 	}
 

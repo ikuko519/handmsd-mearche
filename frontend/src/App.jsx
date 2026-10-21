@@ -7,6 +7,8 @@ import LoginPage from './pages/LoginPage.jsx'
 import ProductCreatePage from './pages/ProductCreatePage.jsx'
 import ProductEditPage from './pages/ProductEditPage.jsx'
 import ProductListPage from './pages/ProductListPage.jsx'
+import PurchaseCompletePage from './pages/PurchaseCompletePage.jsx'
+import PurchasePage from './pages/PurchasePage.jsx'
 
 /** ヘッダー（画面設計書：「Handmade Marche ［ログアウト］」） */
 function SiteHeader() {
@@ -65,6 +67,8 @@ function App() {
             <Route path="/products" element={<ProductListPage />} />
             <Route path="/products/new" element={<ProductCreatePage />} />
             <Route path="/products/:id/edit" element={<ProductEditPage />} />
+            <Route path="/purchase/:id" element={<PurchasePage />} />
+            <Route path="/purchase/complete/:id" element={<PurchaseCompletePage />} />
           </Route>
           <Route path="*" element={<Navigate to="/products" replace />} />
         </Routes>

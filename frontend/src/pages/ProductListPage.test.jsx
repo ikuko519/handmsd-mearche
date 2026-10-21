@@ -89,6 +89,17 @@ describe('商品一覧画面', () => {
     expect(screen.getByRole('link', { name: '木製スプーンを編集する' })).toHaveAttribute('href', '/products/7/edit')
   })
 
+  it('各商品に、その商品の購入画面へのリンクを表示する', async () => {
+    mockFetch()
+    renderPage()
+
+    expect(await screen.findByRole('link', { name: '手編みのマフラーの購入へ進む' })).toHaveAttribute(
+      'href',
+      '/purchase/3',
+    )
+    expect(screen.getByRole('link', { name: '木製スプーンの購入へ進む' })).toHaveAttribute('href', '/purchase/7')
+  })
+
   it('商品が0件でも「商品を登録する」ボタンを表示する', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(jsonResponse(200, []))
     renderPage()
@@ -185,6 +196,18 @@ describe('商品一覧画面：商品削除', () => {
     ).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: '木製スプーン' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: '木製スプーンを削除する' })).toBeEnabled()
+  })
+
+  it('購入された商品の場合（409）は、削除できない旨を表示し、商品は一覧に残る', async () => {
+    mockFetch({ deleteResponse: jsonResponse(409, { message: '購入された商品のため削除できません（ID: 7）' }) })
+    vi.spyOn(window, 'confirm').mockReturnValue(true)
+    vi.spyOn(console, 'error').mockImplementation(() => {})
+    const user = renderPage()
+
+    await user.click(await screen.findByRole('button', { name: '木製スプーンを削除する' }))
+
+    expect(await screen.findByText('「木製スプーン」は購入されているため、削除できません。')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: '木製スプーン' })).toBeInTheDocument()
   })
 
   it('削除中はすべての削除ボタンを押せない（二重削除の防止）', async () => {

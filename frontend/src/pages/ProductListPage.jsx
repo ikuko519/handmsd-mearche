@@ -2,11 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { deleteProduct, fetchProducts } from '../api/products.js'
 import ProductImage from '../components/ProductImage.jsx'
-
-/** 価格を「3,500円」の形式にする */
-function formatPrice(price) {
-  return `${price.toLocaleString('ja-JP')}円`
-}
+import { formatPrice } from '../utils/format.js'
 
 /**
  * 商品一覧画面（画面設計書：商品一覧画面）。
@@ -66,6 +62,8 @@ function ProductListPage() {
         // 別の画面などですでに削除されていた場合は、一覧からも消す
         removeFromList()
         setNotice(`「${product.name}」はすでに削除されていました。`)
+      } else if (err.status === 409) {
+        setDeleteError(`「${product.name}」は購入されているため、削除できません。`)
       } else {
         setDeleteError(`「${product.name}」を削除できませんでした。時間をおいて再度お試しください。`)
       }
@@ -102,6 +100,14 @@ function ProductListPage() {
                 <p className="product-description">{product.description}</p>
               )}
               <div className="product-actions">
+                {/* 商品詳細画面ができるまでの、購入画面への入口 */}
+                <Link
+                  to={`/purchase/${product.id}`}
+                  className="button"
+                  aria-label={`${product.name}の購入へ進む`}
+                >
+                  購入へ進む
+                </Link>
                 <Link
                   to={`/products/${product.id}/edit`}
                   className="button button-secondary"

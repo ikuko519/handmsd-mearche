@@ -321,3 +321,52 @@ img.product-image {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
+
+/* 購入画面・購入完了画面 */
+.purchase-panel {
+  max-width: 640px;
+  padding: 24px;
+  background: #fff;
+  border: 1px solid #eadfd5;
+  border-radius: 12px;
+}
+
+.purchase-details {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 12px 24px;
+  margin: 0 0 24px;
+}
+
+.purchase-details:last-child {
+  margin-bottom: 0;
+}
+
+.purchase-details dt {
+  color: #7a6a60;
+  font-weight: bold;
+}
+
+.purchase-details dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.purchase-price {
+  color: #ea6b66;
+  font-weight: bold;
+}
+
+.purchase-complete .back-link {
+  max-width: 640px;
+}
+
+.purchase-complete-message {
+  margin: 0 0 20px;
+  padding: 12px 16px;
+  color: #067647;
+  background: #ecfdf3;
+  border: 1px solid #abefc6;
+  border-radius: 8px;
+  font-weight: bold;
+}
