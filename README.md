@@ -69,6 +69,36 @@ Handmade Marche は、シュシュ・ヘアアクセサリー・編み物など�
 | 商品登録画面 | `/products/new` | 商品を新しく登録する |
 | 商品編集画面 | `/products/{id}/edit` | 登録済みの商品を編集する |
 
+## 画面イメージ
+
+### ログイン
+
+<img src="docs/01-login.png" alt="ログイン画面" width="480">
+
+### 商品一覧
+
+<img src="docs/02-products.png" alt="商品一覧画面" width="480">
+
+### 商品詳細
+
+<img src="docs/03-product-detail.png" alt="商品詳細画面" width="480">
+
+### 購入内容の確認
+
+<img src="docs/04-purchase-confirm.png" alt="購入内容の確認画面" width="480">
+
+### 購入完了
+
+<img src="docs/05-purchase-complete.png" alt="購入完了画面" width="480">
+
+### 商品登録
+
+<img src="docs/06-product-new.png" alt="商品登録画面" width="480">
+
+### 商品編集
+
+<img src="docs/07-product-edit.png" alt="商品編集画面" width="480">
+
 ## 使用技術
 
 | 区分 | 技術 |
