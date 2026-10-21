@@ -82,60 +82,74 @@ function LoginPage() {
 
   return (
     <section className="login-page">
-      <h2 className="page-title">ログイン</h2>
+      {/* 背景の星と流れ星（飾りなので読み上げない） */}
+      <div className="login-stars" aria-hidden="true">
+        <span className="shooting-star" />
+        <span className="shooting-star" />
+      </div>
 
-      {notice && !submitError && (
-        <p className={`message message-inline message-${notice.type}`} role="status">
-          {notice.text}
-        </p>
-      )}
-      {submitError && (
-        <p className="message message-error message-inline" role="alert">
-          {submitError}
-        </p>
-      )}
+      <div className="login-hero">
+        <p className="login-catch">毎日に、小さなときめきを。</p>
+        <p className="login-lead">海と星を感じる、やさしいハンドメイド</p>
+      </div>
 
-      <form className="product-form login-form" onSubmit={handleSubmit} noValidate>
-        <div className="form-field">
-          <label htmlFor="loginId">ログインID</label>
-          <input
-            id="loginId"
-            name="loginId"
-            type="text"
-            autoComplete="username"
-            value={form.loginId}
-            onChange={handleChange}
-            {...errorProps('loginId')}
-          />
-          {errors.loginId && (
-            <p id="loginId-error" className="field-error">
-              {errors.loginId}
-            </p>
-          )}
-        </div>
+      {/* 背景が少し透ける、白い半透明のカード */}
+      <div className="login-card">
+        <h2 className="page-title">ログイン</h2>
 
-        <div className="form-field">
-          <label htmlFor="password">パスワード</label>
-          <input
-            id="password"
-            name="password"
-            type="password"
-            autoComplete="current-password"
-            value={form.password}
-            onChange={handleChange}
-            {...errorProps('password')}
-          />
-          {errors.password && (
-            <p id="password-error" className="field-error">
-              {errors.password}
-            </p>
-          )}
-        </div>
+        {notice && !submitError && (
+          <p className={`message message-inline message-${notice.type}`} role="status">
+            {notice.text}
+          </p>
+        )}
+        {submitError && (
+          <p className="message message-error message-inline" role="alert">
+            {submitError}
+          </p>
+        )}
 
-        <button type="submit" className="button button-block" disabled={submitting}>
-          {submitting ? 'ログイン中...' : 'ログイン'}
-        </button>
-      </form>
+        <form className="login-form" onSubmit={handleSubmit} noValidate>
+          <div className="form-field">
+            <label htmlFor="loginId">ログインID</label>
+            <input
+              id="loginId"
+              name="loginId"
+              type="text"
+              autoComplete="username"
+              value={form.loginId}
+              onChange={handleChange}
+              {...errorProps('loginId')}
+            />
+            {errors.loginId && (
+              <p id="loginId-error" className="field-error">
+                {errors.loginId}
+              </p>
+            )}
+          </div>
+
+          <div className="form-field">
+            <label htmlFor="password">パスワード</label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              autoComplete="current-password"
+              value={form.password}
+              onChange={handleChange}
+              {...errorProps('password')}
+            />
+            {errors.password && (
+              <p id="password-error" className="field-error">
+                {errors.password}
+              </p>
+            )}
+          </div>
+
+          <button type="submit" className="button button-block" disabled={submitting}>
+            {submitting ? 'ログイン中...' : 'ログイン'}
+          </button>
+        </form>
+      </div>
     </section>
   )
 }

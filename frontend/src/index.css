@@ -1,35 +1,101 @@
+/*
+ * Handmade Marche のスタイル
+ * やさしいアイボリー・ベージュを土台に、コーラルをアクセントとして使う。
+ * 色や角丸はここでまとめて管理する。
+ */
+:root {
+  --color-bg: #faf6f0;
+  --color-surface: #fffdf9;
+  --color-beige: #f3ebe1;
+  --color-border: #e8ddd1;
+  --color-border-strong: #d8c9bb;
+  --color-text: #3d322b;
+  --color-text-sub: #6b5d53;
+  --color-muted: #9a8a7e;
+  --color-coral: #e06a62;
+  --color-coral-strong: #cf5a53;
+  --color-coral-dark: #b94b45;
+  --color-coral-soft: #fcefec;
+  --color-danger: #b42318;
+  --color-danger-soft: #fef3f2;
+  --color-success: #3f7a52;
+  --color-success-soft: #eef6ee;
+  /* ログイン画面（海と星）で使う、深い海の色 */
+  --color-sea: #2c5068;
+  --color-sea-sub: #46677d;
+
+  --font-sans: system-ui, -apple-system, 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', Meiryo,
+    sans-serif;
+  --font-serif: Georgia, 'Times New Roman', 'Hiragino Mincho ProN', 'Yu Mincho', YuMincho, serif;
+
+  --radius: 10px;
+  --radius-lg: 16px;
+  --shadow-sm: 0 1px 2px rgba(61, 50, 43, 0.04), 0 2px 8px rgba(61, 50, 43, 0.04);
+  --shadow-md: 0 4px 16px rgba(61, 50, 43, 0.08);
+}
+
 * {
   box-sizing: border-box;
 }
 
 body {
   margin: 0;
-  font-family: system-ui, 'Hiragino Sans', 'Yu Gothic UI', sans-serif;
-  color: #3a2e28;
-  background: #fbf7f2;
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.7;
+  letter-spacing: 0.02em;
+  color: var(--color-text);
+  background: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
 }
 
-/* ヘッダー */
+a {
+  color: var(--color-coral-strong);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-coral);
+  outline-offset: 2px;
+}
+
+/* ヘッダー（下の破線はステッチをイメージ） */
 .site-header {
-  background: #fff;
-  border-bottom: 3px solid #ea6b66;
+  position: relative;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
 }
 
+.site-header::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: 5px;
+  left: 0;
+  border-bottom: 1px dashed rgba(224, 106, 98, 0.45);
+  pointer-events: none;
+}
+
+/* タイトルを中央に、ログイン中の利用者名を右端に置く */
 .site-header-inner {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   gap: 8px 16px;
   align-items: center;
-  justify-content: space-between;
-  max-width: 960px;
+  max-width: 1040px;
   margin: 0 auto;
-  padding: 16px;
+  padding: 20px 24px 24px;
 }
 
 .site-title {
+  grid-column: 2;
   margin: 0;
-  color: #ea6b66;
-  font-size: 1.5rem;
+  text-align: center;
+  color: var(--color-coral-strong);
+  font-family: var(--font-serif);
+  font-size: 1.6rem;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0.06em;
 }
 
 .site-title a {
@@ -39,145 +105,445 @@ body {
 
 /* ログイン中の利用者名とログアウトボタン */
 .site-user {
+  grid-column: 3;
+  justify-self: end;
+  justify-content: flex-end;
   display: flex;
   flex-wrap: wrap;
-  gap: 8px 12px;
+  gap: 8px 14px;
   align-items: center;
 }
 
 .site-user-name {
-  color: #5c4d44;
-  font-size: 0.9rem;
+  color: var(--color-text-sub);
+  font-size: 0.875rem;
 }
 
 .site-user .button {
   padding: 6px 16px;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
 }
 
 .site-user .field-error {
   margin: 0;
 }
 
-/* ログイン画面 */
-.login-page {
-  max-width: 400px;
-  margin: 0 auto;
-}
-
-.login-page .page-title {
-  text-align: center;
-}
-
-.button-block {
-  display: block;
-  width: 100%;
-}
-
+/* 全体の幅と余白 */
 .container {
-  max-width: 960px;
+  max-width: 1040px;
   margin: 0 auto;
-  padding: 32px 16px 48px;
+  padding: 40px 24px 64px;
 }
 
+/* 画面タイトル（左に短いコーラルの線） */
 .page-title {
-  margin: 0 0 20px;
-  font-size: 1.25rem;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin: 0 0 24px;
+  font-family: var(--font-serif);
+  font-size: 1.4rem;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: 0.06em;
+}
+
+.page-title::before {
+  content: '';
+  flex-shrink: 0;
+  width: 20px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--color-coral);
 }
 
 /* 画面タイトルとボタンを横に並べる */
 .page-header {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 12px 16px;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 20px;
+  margin-bottom: 28px;
 }
 
 .page-header .page-title {
   margin: 0;
 }
 
+/* フォーム・購入・詳細の画面は中央にまとめる */
+.container > section:has(> .product-form),
+.container > section:has(> .purchase-panel),
+.purchase-complete {
+  max-width: 640px;
+  margin-inline: auto;
+}
+
+.container > section:has(> .product-detail) {
+  max-width: 920px;
+  margin-inline: auto;
+}
+
+/*
+ * ログイン画面（海と星のイメージ）
+ * ログイン画面を表示している間だけ、ページ全体に海の写真を敷き、ヘッダーを透明にする。
+ */
+body:has(.login-page) {
+  background: #dfe8ef;
+}
+
+/* 背景の写真。上部だけ空色をうっすら重ねて、タイトルを読みやすくする */
+body:has(.login-page)::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(236, 242, 250, 0.5) 0%,
+      rgba(236, 242, 250, 0.12) 28%,
+      rgba(255, 255, 255, 0) 55%,
+      rgba(250, 246, 240, 0.2) 100%
+    ),
+    url('/beach-bg.JPG') center 12% / cover no-repeat;
+}
+
+body:has(.login-page) .site-header {
+  z-index: 1;
+  background: transparent;
+  border-bottom: 0;
+}
+
+body:has(.login-page) .site-header::after {
+  display: none;
+}
+
+body:has(.login-page) .site-header-inner {
+  padding: 32px 24px 4px;
+}
+
+body:has(.login-page) .site-title {
+  color: var(--color-sea);
+  font-size: clamp(2.1rem, 4.2vw, 3rem);
+  letter-spacing: 0.08em;
+  text-shadow: 0 1px 16px rgba(255, 255, 255, 0.9), 0 0 2px rgba(255, 255, 255, 0.6);
+}
+
+body:has(.login-page) .container {
+  padding-top: 8px;
+  padding-bottom: 32px;
+}
+
+.login-page {
+  position: relative;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+/* 星と流れ星（画面全体に固定して、控えめに散りばめる） */
+.login-stars {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.login-stars::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  --star: radial-gradient(circle, #fff 0 1px, rgba(255, 255, 255, 0.6) 1.5px, rgba(255, 255, 255, 0) 3px);
+  background:
+    var(--star) 8% 12% / 8px 8px no-repeat,
+    var(--star) 18% 30% / 6px 6px no-repeat,
+    var(--star) 27% 8% / 8px 8px no-repeat,
+    var(--star) 36% 22% / 6px 6px no-repeat,
+    var(--star) 44% 5% / 7px 7px no-repeat,
+    var(--star) 58% 16% / 6px 6px no-repeat,
+    var(--star) 66% 6% / 8px 8px no-repeat,
+    var(--star) 74% 26% / 6px 6px no-repeat,
+    var(--star) 83% 11% / 8px 8px no-repeat,
+    var(--star) 92% 20% / 6px 6px no-repeat,
+    var(--star) 5% 48% / 6px 6px no-repeat,
+    var(--star) 95% 44% / 7px 7px no-repeat,
+    var(--star) 12% 72% / 6px 6px no-repeat,
+    var(--star) 88% 78% / 6px 6px no-repeat;
+  filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.9));
+  animation: twinkle 5s ease-in-out infinite alternate;
+}
+
+@keyframes twinkle {
+  from {
+    opacity: 0.55;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/* 流れ星：細い光の尾と、先端の小さな光 */
+.shooting-star {
+  position: absolute;
+  width: 110px;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.95));
+  transform: rotate(-28deg);
+  transform-origin: right center;
+  filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.9));
+}
+
+.shooting-star::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 6px 2px rgba(255, 255, 255, 0.85);
+}
+
+.shooting-star:nth-child(1) {
+  top: 9%;
+  left: 12%;
+}
+
+.shooting-star:nth-child(2) {
+  top: 18%;
+  right: 9%;
+  width: 80px;
+  opacity: 0.8;
+}
+
+/* キャッチコピー */
+.login-hero {
+  position: relative;
+  z-index: 1;
+  margin: 0 0 20px;
+  color: var(--color-sea);
+  text-align: center;
+  text-shadow: 0 1px 12px rgba(255, 255, 255, 0.95);
+}
+
+.login-hero::before {
+  content: '✦';
+  display: block;
+  margin-bottom: 4px;
+  color: #e8bd62;
+  font-size: 0.9rem;
+  line-height: 1.2;
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.9);
+}
+
+.login-catch {
+  margin: 0 0 2px;
+  font-family: var(--font-serif);
+  font-size: 1.35rem;
+  font-weight: 600;
+  line-height: 1.6;
+  letter-spacing: 0.12em;
+}
+
+.login-lead {
+  margin: 0;
+  color: var(--color-sea-sub);
+  font-size: 0.9rem;
+  letter-spacing: 0.14em;
+}
+
+/* 白い半透明のカード（背景が少し透ける） */
+.login-card {
+  position: relative;
+  z-index: 1;
+  padding: 28px 28px 26px;
+  background: rgba(255, 255, 255, 0.68);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  border-radius: 20px;
+  box-shadow: 0 12px 40px rgba(31, 62, 88, 0.16);
+  -webkit-backdrop-filter: blur(8px) saturate(1.15);
+  backdrop-filter: blur(8px) saturate(1.15);
+}
+
+/* ぼかしが使えないブラウザでは、文字が読みやすいよう白を濃くする */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .login-card {
+    background: rgba(255, 255, 255, 0.9);
+  }
+}
+
+/* カード内は間隔を少し詰めて、PCでスクロールせずに収まるようにする */
+.login-card .page-title {
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.login-card .form-field {
+  margin-bottom: 16px;
+}
+
+.login-card .form-field label {
+  margin-bottom: 6px;
+}
+
+.login-card .form-field input {
+  min-height: 44px;
+  padding-block: 9px;
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.login-card .button-block {
+  margin-top: 4px;
+}
+
+.login-card .message-inline {
+  margin-bottom: 20px;
+}
+
+/* 中央寄せのタイトルは、線を文字の下に置く */
+.login-page .page-title,
+.purchase-complete .page-title {
+  flex-direction: column;
+  gap: 10px;
+  justify-content: center;
+}
+
+.login-page .page-title::before,
+.purchase-complete .page-title::before {
+  display: none;
+}
+
+.login-page .page-title::after,
+.purchase-complete .page-title::after {
+  content: '';
+  width: 32px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--color-coral);
+}
+
+.button-block {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+}
+
 /* ボタン */
 .button {
-  display: inline-block;
-  padding: 10px 20px;
-  border: 1px solid #ea6b66;
-  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 10px 22px;
+  border: 1px solid var(--color-coral-strong);
+  border-radius: 999px;
   color: #fff;
-  background: #ea6b66;
+  background: var(--color-coral-strong);
   font: inherit;
-  font-weight: bold;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: 0.04em;
+  text-align: center;
   text-decoration: none;
   cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s;
 }
 
 .button:hover {
-  background: #d9534e;
+  border-color: var(--color-coral-dark);
+  background: var(--color-coral-dark);
 }
 
 .button:disabled {
-  opacity: 0.6;
+  opacity: 0.55;
   cursor: not-allowed;
 }
 
+.button:disabled:hover {
+  border-color: var(--color-coral-strong);
+  background: var(--color-coral-strong);
+}
+
 .button-secondary {
-  color: #ea6b66;
-  background: #fff;
+  border-color: var(--color-border-strong);
+  color: var(--color-text);
+  background: var(--color-surface);
 }
 
 .button-secondary:hover {
-  background: #fdf0ef;
+  border-color: var(--color-coral);
+  color: var(--color-coral-dark);
+  background: var(--color-coral-soft);
+}
+
+.button-secondary:disabled:hover {
+  border-color: var(--color-border-strong);
+  color: var(--color-text);
+  background: var(--color-surface);
 }
 
 /* 削除など、取り消せない操作のボタン */
 .button-danger {
-  border-color: #b42318;
-  color: #b42318;
-  background: #fff;
+  border-color: #e7c3bf;
+  color: var(--color-danger);
+  background: var(--color-surface);
 }
 
 .button-danger:hover {
-  background: #fef3f2;
+  border-color: var(--color-danger);
+  color: var(--color-danger);
+  background: var(--color-danger-soft);
+}
+
+.button-danger:disabled:hover {
+  border-color: #e7c3bf;
+  background: var(--color-surface);
 }
 
 /* 読み込み中・エラー・0件のメッセージ */
 .message {
-  padding: 32px 16px;
+  margin: 0;
+  padding: 40px 16px;
   text-align: center;
-  color: #7a6a60;
+  color: var(--color-text-sub);
 }
 
 .message-error {
-  color: #b42318;
-  background: #fef3f2;
-  border: 1px solid #fecdca;
-  border-radius: 8px;
+  color: var(--color-danger);
+  background: var(--color-danger-soft);
+  border: 1px solid #f6d3cf;
+  border-radius: var(--radius);
 }
 
 /* 一覧の上に出す、短いエラーメッセージ */
 .message-inline {
   margin: 0 0 20px;
   padding: 12px 16px;
+  text-align: left;
 }
 
 .message-success {
   margin: 0 0 20px;
   padding: 12px 16px;
-  color: #067647;
-  background: #ecfdf3;
-  border: 1px solid #abefc6;
-  border-radius: 8px;
+  text-align: left;
+  color: var(--color-success);
+  background: var(--color-success-soft);
+  border: 1px solid #cfe3d0;
+  border-radius: var(--radius);
 }
 
-/* 商品登録フォーム */
+/* 商品登録・編集・ログインのフォーム */
 .product-form {
   max-width: 640px;
-  padding: 24px;
-  background: #fff;
-  border: 1px solid #eadfd5;
-  border-radius: 12px;
+  padding: 32px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
 }
 
 .message + .product-form {
@@ -185,72 +551,106 @@ body {
 }
 
 .form-field {
-  margin-bottom: 20px;
+  margin-bottom: 22px;
 }
 
 .form-field label {
-  display: block;
-  margin-bottom: 6px;
-  font-weight: bold;
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  color: var(--color-text);
+  font-size: 0.9rem;
+  font-weight: 600;
 }
 
 .required {
   margin-left: 8px;
-  padding: 1px 6px;
-  border-radius: 4px;
-  color: #fff;
-  background: #ea6b66;
-  font-size: 0.75rem;
-  vertical-align: middle;
+  padding: 1px 8px;
+  border-radius: 999px;
+  color: var(--color-coral-dark);
+  background: var(--color-coral-soft);
+  font-size: 0.7rem;
+  font-weight: 600;
+  line-height: 1.6;
 }
 
 .form-field input,
 .form-field textarea {
+  display: block;
   width: 100%;
-  padding: 10px 12px;
-  border: 1px solid #d6c8bd;
-  border-radius: 8px;
+  min-height: 46px;
+  padding: 11px 14px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius);
   color: inherit;
   background: #fff;
   font: inherit;
+  line-height: 1.6;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.form-field textarea {
+  resize: vertical;
+}
+
+.form-field input::placeholder,
+.form-field textarea::placeholder {
+  color: #b8aa9f;
+}
+
+.form-field input:hover,
+.form-field textarea:hover {
+  border-color: #c9b8a9;
 }
 
 .form-field input:focus,
 .form-field textarea:focus {
-  outline: 2px solid #ea6b66;
-  outline-offset: 1px;
+  border-color: var(--color-coral);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(224, 106, 98, 0.18);
 }
 
 .form-field [aria-invalid='true'] {
-  border-color: #b42318;
+  border-color: var(--color-danger);
+  background: #fffbfa;
 }
 
 .field-error {
   margin: 6px 0 0;
-  color: #b42318;
-  font-size: 0.875rem;
+  color: var(--color-danger);
+  font-size: 0.85rem;
 }
 
 .back-link {
-  margin: 16px 0 0;
+  margin: 20px 0 0;
   text-align: center;
+  font-size: 0.9rem;
 }
 
 .back-link a {
-  color: #ea6b66;
+  color: var(--color-coral-strong);
+  text-underline-offset: 3px;
+}
+
+.back-link a:hover {
+  color: var(--color-coral-dark);
 }
 
 .form-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 12px;
   justify-content: flex-end;
+  margin-top: 8px;
+  padding-top: 24px;
+  border-top: 1px solid var(--color-border);
 }
 
 /* 商品一覧（画面設計どおり2列のカード。スマホでは1列） */
 .product-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 24px;
+  gap: 32px 28px;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -259,104 +659,180 @@ body {
 @media (max-width: 600px) {
   .product-grid {
     grid-template-columns: 1fr;
+    gap: 24px;
   }
 }
 
 .product-card {
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
-  background: #fff;
-  border: 1px solid #eadfd5;
-  border-radius: 12px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.2s;
 }
 
+.product-card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+/* 商品画像（画像がないときは「商品画像」の枠） */
 .product-image {
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 100%;
   aspect-ratio: 4 / 3;
-  color: #a8968a;
-  background: #f1e9e1;
-  font-size: 0.9rem;
+  color: var(--color-muted);
+  background: var(--color-beige)
+    repeating-linear-gradient(45deg, transparent 0 10px, rgba(255, 255, 255, 0.35) 10px 20px);
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
 }
 
 img.product-image {
   display: block;
-  width: 100%;
   object-fit: cover;
+  background: var(--color-beige);
 }
 
 .product-body {
-  padding: 16px;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: 20px 22px 22px;
 }
 
 .product-name {
   margin: 0 0 4px;
-  font-size: 1.05rem;
+  font-size: 1.08rem;
+  font-weight: 600;
+  line-height: 1.5;
   overflow-wrap: anywhere;
 }
 
 .product-price {
-  margin: 0 0 8px;
-  color: #ea6b66;
-  font-weight: bold;
+  margin: 0 0 10px;
+  color: var(--color-coral-strong);
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
 }
 
-.product-actions {
-  display: flex;
-  gap: 8px;
-  justify-content: flex-end;
-  margin-top: 12px;
-}
-
-.product-actions .button {
-  padding: 6px 16px;
-  font-size: 0.9rem;
+/* カードでは説明文を3行までにして、作品写真を主役にする */
+.product-card .product-description {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
 }
 
 .product-description {
   margin: 0;
-  color: #5c4d44;
-  font-size: 0.9rem;
-  line-height: 1.6;
+  color: var(--color-text-sub);
+  font-size: 0.875rem;
+  line-height: 1.75;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
 
-/* 商品詳細画面（画像の下に商品名・価格・説明） */
+.product-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 18px;
+}
+
+.product-actions .button {
+  min-height: 38px;
+  padding: 6px 16px;
+  font-size: 0.85rem;
+}
+
+/* 「詳細を見る」を大きく、編集・削除は控えめに */
+.product-actions .button:first-child {
+  flex: 1 1 100%;
+}
+
+.product-actions .button-secondary,
+.product-actions .button-danger {
+  flex: 1 1 0;
+}
+
+/* 商品詳細画面（PCでは画像と情報を横並び、スマホでは画像の下に情報） */
 .product-detail {
-  max-width: 640px;
+  display: grid;
   overflow: hidden;
-  background: #fff;
-  border: 1px solid #eadfd5;
-  border-radius: 12px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+@media (min-width: 768px) {
+  .product-detail {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .product-detail .product-image {
+    aspect-ratio: 1 / 1;
+  }
 }
 
 .product-detail-body {
-  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  padding: 32px;
+}
+
+.product-detail-body .purchase-details {
+  grid-template-columns: 1fr;
+  gap: 4px;
+}
+
+.product-detail-body .purchase-details dd {
+  margin-bottom: 16px;
+}
+
+.product-detail-body .purchase-details dd:first-of-type {
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.product-detail-body .purchase-price {
+  font-size: 1.5rem;
 }
 
 .product-detail-description {
-  line-height: 1.6;
+  color: var(--color-text-sub);
+  line-height: 1.85;
   white-space: pre-wrap;
 }
 
 .text-muted {
-  color: #a8968a;
+  color: var(--color-muted);
 }
 
 /* 購入画面・購入完了画面 */
 .purchase-panel {
-  max-width: 640px;
-  padding: 24px;
-  background: #fff;
-  border: 1px solid #eadfd5;
-  border-radius: 12px;
+  padding: 32px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
 }
 
 .purchase-details {
   display: grid;
   grid-template-columns: max-content 1fr;
-  gap: 12px 24px;
+  gap: 14px 28px;
   margin: 0 0 24px;
 }
 
@@ -365,8 +841,11 @@ img.product-image {
 }
 
 .purchase-details dt {
-  color: #7a6a60;
-  font-weight: bold;
+  color: var(--color-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  line-height: 1.9;
 }
 
 .purchase-details dd {
@@ -375,20 +854,143 @@ img.product-image {
 }
 
 .purchase-price {
-  color: #ea6b66;
-  font-weight: bold;
-}
-
-.purchase-complete .back-link {
-  max-width: 640px;
+  color: var(--color-coral-strong);
+  font-family: var(--font-serif);
+  font-size: 1.2rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  line-height: 1.5;
 }
 
 .purchase-complete-message {
-  margin: 0 0 20px;
-  padding: 12px 16px;
-  color: #067647;
-  background: #ecfdf3;
-  border: 1px solid #abefc6;
-  border-radius: 8px;
-  font-weight: bold;
+  margin: 0 0 24px;
+  padding: 14px 16px;
+  color: var(--color-success);
+  background: var(--color-success-soft);
+  border: 1px solid #cfe3d0;
+  border-radius: var(--radius);
+  font-weight: 600;
+  text-align: center;
+}
+
+/*
+ * ログイン画面のPC表示
+ * カードを小さくして少し右に寄せ、左側に海と砂浜が見える空間を作る。
+ * 写真は横長の画面だと上下が切れるので、空より海・波打ち際・砂浜が入る位置を表示する。
+ */
+@media (min-width: 900px) {
+  body:has(.login-page)::before {
+    background-position: 0 0, center 35%;
+  }
+
+  .login-page {
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) 340px minmax(0, 0.4fr);
+    max-width: 1040px;
+  }
+
+  .login-hero {
+    grid-column: 1 / -1;
+  }
+
+  .login-card {
+    grid-column: 2;
+    padding: 24px 24px 22px;
+  }
+}
+
+/* スマホ幅 */
+@media (max-width: 600px) {
+  /* スマホではタイトルの下に利用者名を中央揃えで並べる */
+  .site-header-inner {
+    grid-template-columns: 1fr;
+    padding: 14px 16px 18px;
+  }
+
+  .site-title,
+  .site-user {
+    grid-column: 1;
+  }
+
+  .site-user {
+    justify-self: center;
+    justify-content: center;
+  }
+
+  .site-title {
+    font-size: 1.3rem;
+  }
+
+  .container {
+    padding: 28px 16px 48px;
+  }
+
+  .page-title {
+    margin-bottom: 20px;
+    font-size: 1.2rem;
+  }
+
+  .product-form,
+  .purchase-panel,
+  .product-detail-body {
+    padding: 22px 18px;
+  }
+
+  .purchase-details {
+    gap: 10px 16px;
+  }
+
+  /* ボタンは押しやすいよう横幅いっぱいに並べる */
+  .form-actions .button {
+    flex: 1 1 0;
+  }
+
+  .page-header .button {
+    flex: 1 1 100%;
+  }
+
+  /* ログイン画面 */
+  body:has(.login-page) .site-header-inner {
+    padding: 28px 16px 4px;
+  }
+
+  body:has(.login-page) .site-title {
+    font-size: 2rem;
+  }
+
+  .login-hero {
+    margin-bottom: 18px;
+  }
+
+  .login-catch {
+    font-size: 1.1rem;
+  }
+
+  .login-lead {
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+  }
+
+  .login-card {
+    padding: 24px 20px 22px;
+    border-radius: 18px;
+  }
+
+  .shooting-star:nth-child(1) {
+    width: 70px;
+  }
+
+  .shooting-star:nth-child(2) {
+    display: none;
+  }
+}
+
+/* 動きを減らす設定の人には、変化やまたたきをなくす */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+  }
 }
