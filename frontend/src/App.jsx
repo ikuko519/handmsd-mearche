@@ -5,6 +5,7 @@ import RequireAuth from './auth/RequireAuth.jsx'
 import { useAuth } from './auth/useAuth.js'
 import LoginPage from './pages/LoginPage.jsx'
 import ProductCreatePage from './pages/ProductCreatePage.jsx'
+import ProductDetailPage from './pages/ProductDetailPage.jsx'
 import ProductEditPage from './pages/ProductEditPage.jsx'
 import ProductListPage from './pages/ProductListPage.jsx'
 import PurchaseCompletePage from './pages/PurchaseCompletePage.jsx'
@@ -66,6 +67,7 @@ function App() {
             <Route path="/" element={<Navigate to="/products" replace />} />
             <Route path="/products" element={<ProductListPage />} />
             <Route path="/products/new" element={<ProductCreatePage />} />
+            <Route path="/products/:id" element={<ProductDetailPage />} />
             <Route path="/products/:id/edit" element={<ProductEditPage />} />
             <Route path="/purchase/:id" element={<PurchasePage />} />
             <Route path="/purchase/complete/:id" element={<PurchaseCompletePage />} />

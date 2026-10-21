@@ -25,11 +25,11 @@ function overrideFetch(fetchMock, url, method, response) {
 }
 
 describe('購入画面', () => {
-  it('商品一覧の「購入へ進む」から購入画面に移動し、商品名と価格を表示する', async () => {
+  it('商品詳細画面の「購入へ進む」から購入画面に移動し、商品名と価格を表示する', async () => {
     mockBackend([muffler, spoon])
-    const user = renderApp('/products')
+    const user = renderApp('/products/7')
 
-    await user.click(await screen.findByRole('link', { name: '木製スプーンの購入へ進む' }))
+    await user.click(await screen.findByRole('link', { name: '購入へ進む' }))
 
     expect(screen.getByRole('heading', { name: '購入内容の確認' })).toBeInTheDocument()
     expect(await screen.findByText('木製スプーン')).toBeInTheDocument()
@@ -69,14 +69,15 @@ describe('購入画面', () => {
     expect(await screen.findByRole('heading', { name: '商品一覧' })).toBeInTheDocument()
   })
 
-  it('「商品一覧へ戻る」を押すと、購入せずに商品一覧画面に戻る', async () => {
-    const { fetchMock } = mockBackend([muffler])
+  it('「詳細へ戻る」を押すと、購入せずにその商品の詳細画面に戻る', async () => {
+    const { fetchMock } = mockBackend([muffler, spoon])
     const user = renderApp('/purchase/3')
     await screen.findByText('手編みのマフラー')
 
-    await user.click(screen.getByRole('link', { name: '商品一覧へ戻る' }))
+    await user.click(screen.getByRole('link', { name: '詳細へ戻る' }))
 
-    expect(await screen.findByRole('heading', { name: '商品一覧' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: '商品詳細' })).toBeInTheDocument()
+    expect(await screen.findByText('手編みのマフラー')).toBeInTheDocument()
     expect(purchaseCalls(fetchMock)).toHaveLength(0)
   })
 

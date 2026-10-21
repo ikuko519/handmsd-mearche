@@ -91,9 +91,8 @@ function PurchasePage() {
           <dd className="purchase-price">{formatPrice(product.price)}</dd>
         </dl>
         <div className="form-actions">
-          {/* 商品詳細画面ができるまでは、商品一覧に戻る */}
-          <Link to="/products" className="button button-secondary">
-            商品一覧へ戻る
+          <Link to={`/products/${product.id}`} className="button button-secondary">
+            詳細へ戻る
           </Link>
           <button type="button" className="button" onClick={handlePurchase} disabled={submitting}>
             {submitting ? '購入処理中...' : '購入確定'}

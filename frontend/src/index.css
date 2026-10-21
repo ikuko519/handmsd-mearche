@@ -322,6 +322,28 @@ img.product-image {
   overflow-wrap: anywhere;
 }
 
+/* 商品詳細画面（画像の下に商品名・価格・説明） */
+.product-detail {
+  max-width: 640px;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid #eadfd5;
+  border-radius: 12px;
+}
+
+.product-detail-body {
+  padding: 24px;
+}
+
+.product-detail-description {
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.text-muted {
+  color: #a8968a;
+}
+
 /* 購入画面・購入完了画面 */
 .purchase-panel {
   max-width: 640px;

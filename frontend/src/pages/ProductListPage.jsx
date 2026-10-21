@@ -100,13 +100,13 @@ function ProductListPage() {
                 <p className="product-description">{product.description}</p>
               )}
               <div className="product-actions">
-                {/* 商品詳細画面ができるまでの、購入画面への入口 */}
+                {/* 画面設計書の「詳細を見る」。購入は商品詳細画面から進む */}
                 <Link
-                  to={`/purchase/${product.id}`}
+                  to={`/products/${product.id}`}
                   className="button"
-                  aria-label={`${product.name}の購入へ進む`}
+                  aria-label={`${product.name}の詳細を見る`}
                 >
-                  購入へ進む
+                  詳細を見る
                 </Link>
                 <Link
                   to={`/products/${product.id}/edit`}

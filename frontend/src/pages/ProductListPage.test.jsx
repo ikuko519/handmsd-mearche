@@ -89,15 +89,14 @@ describe('商品一覧画面', () => {
     expect(screen.getByRole('link', { name: '木製スプーンを編集する' })).toHaveAttribute('href', '/products/7/edit')
   })
 
-  it('各商品に、その商品の購入画面へのリンクを表示する', async () => {
+  it('各商品に、その商品の詳細画面へのリンク「詳細を見る」を表示する', async () => {
     mockFetch()
     renderPage()
 
-    expect(await screen.findByRole('link', { name: '手編みのマフラーの購入へ進む' })).toHaveAttribute(
-      'href',
-      '/purchase/3',
-    )
-    expect(screen.getByRole('link', { name: '木製スプーンの購入へ進む' })).toHaveAttribute('href', '/purchase/7')
+    const link = await screen.findByRole('link', { name: '手編みのマフラーの詳細を見る' })
+    expect(link).toHaveAttribute('href', '/products/3')
+    expect(link).toHaveTextContent('詳細を見る')
+    expect(screen.getByRole('link', { name: '木製スプーンの詳細を見る' })).toHaveAttribute('href', '/products/7')
   })
 
   it('商品が0件でも「商品を登録する」ボタンを表示する', async () => {
